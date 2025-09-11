@@ -15,7 +15,7 @@ Script_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ ! -d "$Script_DIR/Plugin" ]; then
     echo "Creation repertoire Plugin"
-    mkdir ./Plugin
+    mkdir ~/.Plugin/Plugin
 else
     echo "Repertoire Plugin existant"
 fi
@@ -58,7 +58,7 @@ for plugin in "${all_plugin[@]}"; do
     if [[ " ${selected_plugins[*]} " == *" $plugin "* ]]; then
         if [[ ! -f "$Script_DIR/Plugin/$plugin" ]]; then
             echo "Ajout de $plugin"
-            curl -fsSL "$GitHub_DIR/Plugin/$plugin" -o "$Script_DIR/Plugin/$plugin"
+            curl -fsSL "$Github_DIR/Plugin/$plugin" -o "$Script_DIR/Plugin/$plugin"
         else
             echo "$plugin déjà présent"
         fi
