@@ -21,7 +21,7 @@ else
 fi
 
 Script_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-Plugin_File=($(find "$Script_DIR" -maxdepth 1 -type f -exec basename {} \;))
+Plugin_File=($(find "$Script_DIR/Plugin/" -maxdepth 1 -type f -exec basename {} \;))
 
 
 # Recuperation de la liste de plugin
@@ -30,6 +30,9 @@ if [[ ! -f "$Script_DIR/List" ]]; then
     exit 1
 fi
 mapfile -t all_plugin < List
+
+# Recuperation plugin déjà actif
+
 
 # Construire la liste pour dialog
 menu_items=()
@@ -46,6 +49,13 @@ selected=$(dialog --clear --stdout --checklist \
     "Sélectionnez les raccourcis a installer, Entrée pour valider) :" 20 60 15 \
     "${menu_items[@]}")
 
+# Vérifier si l'utilisateur a annulé
+if [ $? -ne 0 ]; then
+    clear
+    echo "Opération annulée par l'utilisateur."
+    exit 1
+fi
+
 # Nettoyer l’écran après dialog
 clear
 
@@ -59,19 +69,30 @@ for plugin in "${all_plugin[@]}"; do
         if [[ ! -f "$Script_DIR/Plugin/$plugin" ]]; then
             echo "Ajout de $plugin"
             curl -fsSL "$Github_DIR/Plugin/$plugin" -o "$Script_DIR/Plugin/$plugin"
+
+            # Ajout du bloc dans .bashrc si pas déjà présent
+            if ! grep -Fqx "# Ajout Plugin $plugin" "$HOME/.bashrc"; then
+                echo "Ajout du bloc $plugin dans ~/.bashrc"
+                cat << EOF >> "$HOME/.bashrc"
+# Ajout Plugin $plugin
+if [ -f ~/.Plugin/Plugin/$plugin ]; then
+  source ~/.Plugin/Plugin/$plugin
+fi
+EOF
+            else
+                echo "Bloc $plugin déjà présent dans ~/.bashrc"
+            fi
         else
             echo "$plugin déjà présent"
         fi
     else
-        if [[ -f "$Script_DIR/Plugin/$plugin" ]]; then
+        if [[ " ${Plugin_File[*]} " == *" $plugin "* ]]; then
             echo "Suppression de $plugin"
             rm "$Script_DIR/Plugin/$plugin"
+
+            # Supprimer le bloc correspondant dans .bashrc
+            echo "Suppression du bloc $plugin dans ~/.bashrc"
+            sed -i "/# Ajout Plugin $plugin/,/fi/d" "$HOME/.bashrc"
         fi
     fi
 done
-
-
-
-#create link .bashrc
-
-#echo resultat et commande
