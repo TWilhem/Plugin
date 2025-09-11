@@ -10,20 +10,18 @@ else
 fi
 
 # Creation du repertoire si inexistant
-Github_DIR="https://raw.githubusercontent.com/Utilisateur/Depot/main"
+Github_DIR="https://raw.githubusercontent.com/TWilhem/Plugin/main"
 Script_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ ! -d "$Script_DIR/Plugin" ]; then
     echo "Creation repertoire Plugin"
     mkdir ./Plugin
-    cd ./Plugin
 else
     echo "Repertoire Plugin existant"
-    cd ./Plugin
 fi
 
 Script_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-Plugin_File=($(find "$Script_DIR/Plugin" -maxdepth 1 -type f -exec basename {} \;))
+Plugin_File=($(find "$Script_DIR" -maxdepth 1 -type f -exec basename {} \;))
 
 
 # Recuperation de la liste de plugin
@@ -32,7 +30,6 @@ if [[ ! -f "$Script_DIR/List" ]]; then
     exit 1
 fi
 mapfile -t all_plugin < List
-
 
 # Construire la liste pour dialog
 menu_items=()
@@ -55,12 +52,13 @@ clear
 # Conversion des sélections en tableau
 read -r -a selected_plugins <<< "$selected"
 
+
 # Installation / suppression selon la sélection
 for plugin in "${all_plugin[@]}"; do
     if [[ " ${selected_plugins[*]} " == *" $plugin "* ]]; then
         if [[ ! -f "$Script_DIR/Plugin/$plugin" ]]; then
             echo "Ajout de $plugin"
-            #curl -fsSL "$GitHub_DIR/Plugin/$plugin" -o "$Script_DIR/Plugin/$plugin"
+            curl -fsSL "$GitHub_DIR/Plugin/$plugin" -o "$Script_DIR/Plugin/$plugin"
         else
             echo "$plugin déjà présent"
         fi
