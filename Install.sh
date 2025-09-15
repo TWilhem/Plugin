@@ -21,6 +21,8 @@ else
 fi
 
 Script_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Recuperation plus actif
 Plugin_File=($(find "$Script_DIR/Plugin/" -maxdepth 1 -type f -exec basename {} \;))
 
 
@@ -29,10 +31,7 @@ curl -fsSL "$Github_DIR/List" -o "$Script_DIR/List"
 if [[ ! -f "$Script_DIR/List" ]]; then
     exit 1
 fi
-mapfile -t all_plugin < List
-
-# Recuperation plugin déjà actif
-
+mapfile -t all_plugin < "$Script_DIR/List"
 
 # Construire la liste pour dialog
 menu_items=()
